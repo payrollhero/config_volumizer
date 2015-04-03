@@ -1,5 +1,6 @@
 require 'config_volumizer/version'
 require 'config_volumizer/parser'
+require 'config_volumizer/generator'
 
 module ConfigVolumizer
   class << self
@@ -14,6 +15,16 @@ module ConfigVolumizer
     # @return [Hash]
     def parse(source, base_name)
       Parser.parse(source, base_name)
+    end
+
+    # Generates a flattened config out of a data hash
+    #
+    # @see ConfigVolumizer::Generator.generate
+    #
+    # @param [Hash] data
+    # @return [Hash]
+    def generate(data)
+      Generator.generate(data)
     end
 
   end

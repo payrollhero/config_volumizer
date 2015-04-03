@@ -46,9 +46,55 @@ ConfigVolumizer.parse(ENV, 'some')
 
 ## Features
 
-The gem basically smartly parses all keys within the passed in Hash that match the prefix specified.
+### Parsing
 
-It allows to nest either arrays or hashes inside eachother, basically any reasonable combination of hash/array notation should work.
+You can parse a flattened config via `ConfigVolumizer.parse(ENV, 'some')`
+
+For example if your ENV was:
+
+```
+some.setting[0] = one
+some.setting[1] = two
+some.setting[2] = three
+some.with.another = setting
+```
+
+This would yield a {Hash} like the following:
+
+```yaml
+some:
+  setting:
+    - one
+    - two
+    - three
+  with:
+    another: setting
+```
+
+### Generation
+
+You can generate a flat list of configs (mostly as examples for your actual config) via:
+`ConfigVolumizer.generate(data_hash)`
+
+For example, given a hash simillar to:
+```yaml
+some:
+  setting:
+    - one
+    - two
+    - three
+  with:
+    another: setting
+```
+
+You would get back a hash looking like this:
+
+```yaml
+"some.setting[0]": one
+"some.setting[1]": two
+"some.setting[2]": three
+"some.with.another": setting
+```
 
 ## Install
 
