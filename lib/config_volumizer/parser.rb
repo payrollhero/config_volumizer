@@ -6,6 +6,14 @@ module ConfigVolumizer
 
     class << self
 
+      # Parses keys within the {source} hash matching {base_name}
+      # returning a hash with all the matched data under a string key matching the {base_name}
+      #
+      # See Readme for an example
+      #
+      # @param [Hash] source
+      # @param [String] base_name
+      # @return [Hash]
       def parse(source, base_name)
         result = {}
         source.each do |key, value|
