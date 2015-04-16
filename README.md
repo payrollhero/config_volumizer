@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/payrollhero/config_volumizer.svg)](https://travis-ci.org/payrollhero/config_volumizer)
 [![Code Climate](https://codeclimate.com/github/payrollhero/config_volumizer/badges/gpa.svg)](https://codeclimate.com/github/payrollhero/config_volumizer)
+[![Coverage Status](https://coveralls.io/repos/payrollhero/config_volumizer/badge.svg?branch=master)](https://coveralls.io/r/payrollhero/config_volumizer?branch=master)
 
 * [Homepage](https://rubygems.org/gems/config_volumizer)
 * [Documentation](http://rubydoc.info/gems/config_volumizer/frames)
