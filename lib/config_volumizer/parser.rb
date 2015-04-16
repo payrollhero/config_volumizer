@@ -1,5 +1,6 @@
 require 'strscan'
 require 'yaml'
+require 'csv'
 
 module ConfigVolumizer
   module Parser
@@ -13,13 +14,15 @@ module ConfigVolumizer
       #
       # @param [Hash] source
       # @param [String] base_name
+      # @param [Hash] mapping
       # @return [Hash]
-      def parse(source, base_name)
+      def parse(source, mapping)
         result = {}
-        source.each do |key, value|
-          if matches_name(base_name, key)
-            fragments = key.gsub(/^#{base_name}/, '')
-            handle_item(result, base_name, fragments, value)
+        mapping.each do |mapping_key, mapping_info|
+          source.each do |key, value|
+            if matches_name(mapping_key, key)
+              handle_item(result, key, value, mapping_key, mapping_info)
+            end
           end
         end
         result
@@ -28,61 +31,63 @@ module ConfigVolumizer
       private
 
       def matches_name(base_name, key)
-        key == base_name || key =~ /^#{base_name}([.\[])/
+        key == base_name || key =~ /^#{base_name}_/
       end
 
       def format_value(value)
         YAML.load(value)
       end
 
-      def initialize_array(result, key)
-        validate_result_key_kind(result, key, Array)
-        result[key] ||= []
+      def format_array_value(value)
+        CSV.parse_line(value).map { |inner_value| format_value(inner_value) }
       end
 
-      def initialize_hash(result, key)
-        validate_result_key_kind(result, key, Hash)
-        result[key] ||= {}
+      def handle_item(result, name, value, mapping_key, mapping_info)
+        case mapping_info
+        when Array
+          handle_array_item(mapping_info, mapping_key, name, result, value)
+        when Hash
+          handle_hash_item(mapping_info, mapping_key, name, result, value)
+        when :value
+          result[mapping_key] = format_value(value)
+        when :hash
+          new_name = name.gsub(/^#{mapping_key}_/, '')
+          result[mapping_key] ||= {}
+          result[mapping_key][new_name] = format_value(value)
+        else
+          raise ArgumentError, "don't know how to deal with #{mapping_info.inspect}"
+        end
+
       end
 
-      def validate_result_key_kind(result, key, kind)
-        if result[key] && !result[key].kind_of?(kind)
-          raise ArgumentError, "referencing #{kind} key #{name} when its already a #{result[key].class}"
+      def handle_hash_item(mapping_info, mapping_key, name, result, value)
+        result[mapping_key] ||= {}
+        new_name = name.gsub(/^#{mapping_key}_/, '')
+        mapping_info.each do |inner_mapping_key, inner_mapping_info|
+          if matches_name(inner_mapping_key, new_name)
+            handle_item(result[mapping_key], new_name, value, inner_mapping_key, inner_mapping_info)
+          end
         end
       end
 
-      def handle_item(result, base_name, name, value)
-        dst, key = result, base_name
-        scanner = StringScanner.new(name)
-
-        until scanner.eos?
-          dst, key = case next_fragment(scanner)
-                     when /^\.(.+)/
-                       handle_hash($~, dst, key)
-                     when /\[(\d+)\]/
-                       handle_array($~, dst, key)
-                     end
+      def handle_array_item(mapping_info, mapping_key, name, result, value)
+        result[mapping_key] ||= []
+        mapping_info.each do |inner_mapping_info|
+          case inner_mapping_info
+          when :value
+            result[mapping_key] += format_array_value(value)
+          when :hash, Hash
+            handle_array_hash_item(inner_mapping_info, mapping_key, name, result, value)
+          else
+            raise "don't know how to handle: #{inner_mapping_info.inspect}"
+          end
         end
-
-        dst[key] = format_value(value)
       end
 
-      def handle_array(match, dst, key)
-        index = match[1].to_i
-        initialize_array(dst, key)
-        return dst[key], index
-      end
-
-      def handle_hash(match, dst, key)
-        hash_key = match[1]
-        initialize_hash(dst, key)
-        return dst[key], hash_key
-      end
-
-      def next_fragment(scanner)
-        fragment = scanner.scan /\.[^.\[]+|\[\d+\]/
-        raise "failed: rest: #{scanner.rest} inside #{scanner.string}" unless fragment
-        fragment
+      def handle_array_hash_item(inner_mapping_info, mapping_key, name, result, value)
+        new_name = name.gsub(/^#{mapping_key}_(\d+)(?:_)?/, '')
+        index = $~[1].to_i
+        handle_item(result[mapping_key], new_name, value, index, inner_mapping_info)
       end
 
     end
