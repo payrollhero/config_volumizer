@@ -34,31 +34,40 @@ some:
 info a series of ENV variables like so:
 
 ```
-some.setting[0] = one
-some.setting[1] = two
-some.setting[2] = three
-some.with.another = setting
+some_setting = one,two,three
+some_with_another = setting
 ```
 
 ... and then just give it some volume with the volumizer to turn it back to the original rich structure
 
 ```ruby
-ConfigVolumizer.parse(ENV, 'some')
+mapping = { "some" => { "setting" => :value, "with" => { "another" => :value } } }
+ConfigVolumizer.parse(ENV, 'some', mapping)
 ```
 
 ## Features
 
 ### Parsing
 
-You can parse a flattened config via `ConfigVolumizer.parse(ENV, 'some')`
+You can parse a flattened config via `ConfigVolumizer.parse(ENV, 'some', mapping)`
 
 For example if your ENV was:
 
 ```
-some.setting[0] = one
-some.setting[1] = two
-some.setting[2] = three
-some.with.another = setting
+some_setting = one,two,three
+some_with_another = setting
+```
+
+And you created a map like so:
+```ruby
+mapping = {
+  "some" => {
+    "setting" => :value,
+    "with" => {
+      "another" => :value
+    }
+  }
+}
 ```
 
 This would yield a {Hash} like the following:
@@ -89,13 +98,18 @@ some:
     another: setting
 ```
 
-You would get back a hash looking like this:
+You would get back the data and mapping looking like this:
 
 ```yaml
-"some.setting[0]": one
-"some.setting[1]": two
-"some.setting[2]": three
-"some.with.another": setting
+some:
+  setting: :value
+  with:
+    another: :value
+```
+
+```yaml
+"some_setting": one,two,three
+"some_with_another": setting
 ```
 
 ## Install
