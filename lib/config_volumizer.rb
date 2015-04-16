@@ -13,8 +13,8 @@ module ConfigVolumizer
     # @param [Hash] source
     # @param [String] base_name
     # @return [Hash]
-    def parse(source, base_name)
-      Parser.parse(source, base_name)
+    def parse(source, mapping)
+      Parser.parse(source, mapping)
     end
 
     # Generates a flattened config out of a data hash

@@ -13,13 +13,22 @@ describe ConfigVolumizer do
           ]
         }
       }
-      expected_data = {
+      expected_env_data = {
         "one" => "two",
-        "three.four" => "five",
-        "three.six[0]" => "seven",
-        "three.six[1]" => "eight",
+        "three_four" => "five",
+        "three_six_0" => "seven",
+        "three_six_1" => "eight",
       }
-      expect(described_class.generate(data)).to eq(expected_data)
+      expected_mapping_data = {
+        "one" => :value,
+        "three" => {
+          "four" => :value,
+          "six" => [:value]
+        }
+      }
+      result = described_class.generate(data)
+      expect(result.env_hash).to eq(expected_env_data)
+      expect(result.mapping_hash).to eq(expected_mapping_data)
     end
   end
 end

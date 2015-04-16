@@ -2,11 +2,11 @@ require 'spec_helper'
 
 describe ConfigVolumizer do
   describe '.parse' do
-    let(:key) { 'ex' }
-    let(:result) { described_class.parse(input, key) }
+    let(:result) { described_class.parse(input, mapping) }
 
     describe "1 level hash" do
       let(:input) { { "ex" => "1a" } }
+      let(:mapping) { { "ex" => :value }}
       let(:expected_result) { { 'ex' => '1a' } }
 
       example do
@@ -15,11 +15,18 @@ describe ConfigVolumizer do
     end
 
     describe "2 level hash" do
-      let(:key) { 'ex1' }
+      let(:mapping) {
+        {
+          "ex1" => {
+            "bar" => :value,
+            "bar2" => :value,
+          }
+        }
+      }
       let(:input) do
         {
-          "ex1.bar" => "1a",
-          "ex1.bar2" => "2a",
+          "ex1_bar" => "1a",
+          "ex1_bar2" => "2a",
         }
       end
       let(:expected_result) do
@@ -37,12 +44,24 @@ describe ConfigVolumizer do
     end
 
     describe "3 level hash" do
-      let(:key) { 'ex3' }
+      let(:mapping) do
+        {
+          "ex3" => {
+            "one" => {
+              "two" => :value,
+              "three" => :value,
+            },
+            "two" => {
+              "three" => :value,
+            }
+          }
+        }
+      end
       let(:input) do
         {
-          "ex3.one.two" => "1a",
-          "ex3.one.three" => "2a",
-          "ex3.two.three" => "3a",
+          "ex3_one_two" => "1a",
+          "ex3_one_three" => "2a",
+          "ex3_two_three" => "3a",
         }
       end
       let(:expected_result) do
@@ -65,10 +84,16 @@ describe ConfigVolumizer do
     end
 
     describe "array of values in hash" do
+      let(:mapping) do
+        {
+          "ex" => {
+            "one" => [:value]
+          }
+        }
+      end
       let(:input) do
         {
-          "ex.one[0]" => "1a",
-          "ex.one[1]" => "2a",
+          "ex_one" => "1a,2a",
         }
       end
       let(:expected_result) do
@@ -83,10 +108,14 @@ describe ConfigVolumizer do
     end
 
     describe "just array of values" do
+      let(:mapping) do
+        {
+          "ex" => [:value],
+        }
+      end
       let(:input) do
         {
-          "ex[0]" => "1a",
-          "ex[1]" => "2a",
+          "ex" => "1a,2a",
         }
       end
       let(:expected_result) do
@@ -101,11 +130,19 @@ describe ConfigVolumizer do
     end
 
     describe "array of hashes" do
+      let(:mapping) do
+        {
+          "ex" => [{
+                     "foo" => :value,
+                     "bar" => :value,
+                   }],
+        }
+      end
       let(:input) do
         {
-          "ex[0].foo" => "1a",
-          "ex[0].bar" => "2a",
-          "ex[1].foo" => "3a",
+          "ex_0_foo" => "1a",
+          "ex_0_bar" => "2a",
+          "ex_1_foo" => "3a",
         }
       end
       let(:expected_result) do
@@ -123,12 +160,23 @@ describe ConfigVolumizer do
     end
 
     describe "array of hash in hash" do
-      let(:key) { 'ex2' }
+      let(:mapping) do
+        {
+          "ex2" => {
+            "one" => [
+              {
+                "foo" => :value,
+                "bar" => :value,
+              }
+            ]
+          },
+        }
+      end
       let(:input) do
         {
-          "ex2.one[0].foo" => "1a",
-          "ex2.one[0].bar" => "2a",
-          "ex2.one[1].foo" => "3a",
+          "ex2_one_0_foo" => "1a",
+          "ex2_one_0_bar" => "2a",
+          "ex2_one_1_foo" => "3a",
         }
       end
       let(:expected_result) do
@@ -153,6 +201,11 @@ describe ConfigVolumizer do
     end
 
     describe "empty hash value" do
+      let(:mapping) {
+        {
+          "ex" => {}
+        }
+      }
       let(:input) { { "ex" => "{}", } }
       let(:expected_result) { { 'ex' => {} } }
 
@@ -162,6 +215,11 @@ describe ConfigVolumizer do
     end
 
     describe "empty array value" do
+      let(:mapping) {
+        {
+          "ex" => []
+        }
+      }
       let(:input) { { "ex" => "[]", } }
       let(:expected_result) { { 'ex' => [] } }
 
@@ -170,56 +228,101 @@ describe ConfigVolumizer do
       end
     end
 
-    describe "2d arrays" do
-      let(:input) do
-        {
-          "ex[0][0]" => "1a",
-          "ex[0][1]" => "2a",
-          "ex[1][0]" => "3a",
-          "ex[1][1]" => "4a",
-        }
-      end
-      let(:expected_result) do
-        {
-          'ex' => [
-            ['1a', '2a'],
-            ['3a', '4a']
-          ]
-        }
+    describe "hash values" do
+      context "at root" do
+        let(:mapping) do
+          {
+            "ex" => :hash
+          }
+        end
+        let(:input) do
+          {
+            'ex_one' => "1a",
+            'ex_two' => "2a",
+            'ex_three' => "3a",
+          }
+        end
+        let(:expected_result) do
+          {
+            'ex' => {
+              "one" => "1a",
+              "two" => "2a",
+              "three" => "3a",
+            }
+          }
+        end
+
+        example do
+          expect(result).to eq(expected_result)
+        end
       end
 
-      example do
-        expect(result).to eq(expected_result)
-      end
-    end
+      context "in a hash" do
+        let(:mapping) do
+          {
+            "ex" => {
+              "ex2" => :hash
+            }
+          }
+        end
+        let(:input) do
+          {
+            'ex_ex2_one' => "1a",
+            'ex_ex2_two' => "2a",
+            'ex_ex2_three' => "3a",
+          }
+        end
+        let(:expected_result) do
+          {
+            'ex' => {
+              'ex2' => {
+                "one" => "1a",
+                "two" => "2a",
+                "three" => "3a",
+              }
+            }
+          }
+        end
 
-    describe "3d arrays" do
-      let(:input) do
-        {
-          'ex[0][0][1]' => "1a",
-          'ex[0][1][0]' => "2a",
-          'ex[1][0][1]' => "3a",
-          'ex[1][1][0]' => "4a",
-        }
+        example do
+          expect(result).to eq(expected_result)
+        end
       end
-      let(:expected_result) do
-        {
-          'ex' => [
-            [
-              [nil, '1a'],
-              ['2a'],
-            ],
-            [
-              [nil, '3a'],
-              ['4a'],
+
+      context "in an array" do
+        let(:mapping) do
+          {
+            "ex" => [:hash]
+          }
+        end
+        let(:input) do
+          {
+            'ex_0_one' => "1a",
+            'ex_0_two' => "2a",
+            'ex_0_three' => "3a",
+            'ex_1_two' => "4a",
+          }
+        end
+        let(:expected_result) do
+          {
+            'ex' => [
+              {
+                "one" => "1a",
+                "two" => "2a",
+                "three" => "3a",
+              },
+              {
+                "two" => "4a",
+              }
             ]
-          ]
-        }
-      end
+          }
+        end
 
-      example do
-        expect(result).to eq(expected_result)
+        example do
+          expect(result).to eq(expected_result)
+        end
       end
     end
+
   end
 end
