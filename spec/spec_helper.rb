@@ -1,4 +1,7 @@
 require 'bundler'
-Bundler.require :development
+Bundler.require :test
 
 require 'config_volumizer'
+
+require 'coveralls'
+Coveralls.wear!

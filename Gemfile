@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-group :development do
+group :development, :test do
   gem 'awesome_print'
   gem 'kramdown'
   gem 'bundler'
@@ -12,4 +12,6 @@ group :development do
   gem 'yard'
   gem 'flay'
   gem 'flog'
+
+  gem 'coveralls', require: false
 end
