@@ -35,5 +35,5 @@ task :doc => :yard
 
 desc "Updates the changelog"
 task :changelog do
-  sh "github_changelog_generator payrollhero/dispatch-rider"
+  sh "github_changelog_generator payrollhero/config_volumizer"
 end
