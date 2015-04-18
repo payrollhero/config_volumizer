@@ -9,6 +9,7 @@ group :development, :test do
   gem 'rake'
   gem 'rspec'
   gem 'rubygems-tasks'
+  gem 'github_changelog_generator'
   gem 'yard'
   gem 'flay'
   gem 'flog'
