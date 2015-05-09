@@ -6,7 +6,7 @@ describe ConfigVolumizer do
 
     describe "1 level hash" do
       let(:input) { { "ex" => "1a" } }
-      let(:mapping) { { "ex" => :value }}
+      let(:mapping) { { "ex" => :value } }
       let(:expected_result) { { 'ex' => '1a' } }
 
       example do
@@ -325,4 +325,103 @@ describe ConfigVolumizer do
     end
 
   end
+
+  describe "fetch" do
+    let(:key_name) { "some_gem_settings" }
+    let(:result) { ConfigVolumizer.fetch(env, key_name, mapping) }
+
+    context "basic example" do
+      let(:env) do
+        {
+          "some_gem_settings_one" => "hello",
+          "some_gem_settings_two" => "world",
+          "some_gem_settings_three" => "yay",
+        }
+      end
+      let(:mapping) { :hash }
+      let(:expected) do
+        {
+          "one" => "hello",
+          "two" => "world",
+          "three" => "yay",
+        }
+      end
+
+      example { expect(result).to eq(expected) }
+    end
+
+    context "complex example" do
+      let(:env) do
+        {
+          "some_gem_settings_key1_one" => "hello1",
+          "some_gem_settings_key1_two" => "hello2",
+          "some_gem_settings_key2" => "hello,world",
+          "some_gem_settings_key3_0_foo_one" => "1",
+          "some_gem_settings_key3_0_foo_two" => "2",
+          "some_gem_settings_key3_1_foo_one" => "3",
+          "some_gem_settings_key3_1_foo_two" => "4",
+          "some_gem_settings_key3_2_foo_one" => "5",
+          "some_gem_settings_key3_2_foo_two" => "6",
+        }
+      end
+      let(:mapping) do
+        {
+          "key1" => :hash,
+          "key2" => [:value],
+          "key3" => [
+            {
+              "foo" => :hash,
+            }
+          ],
+        }
+      end
+      let(:expected) do
+        {
+          "key1" => { "one" => "hello1", "two" => "hello2" },
+          "key2" => ["hello", "world"],
+          "key3" => [{ "foo" => { "one" => 1, "two" => 2 } },
+                     { "foo" => { "one" => 3, "two" => 4 } },
+                     { "foo" => { "one" => 5, "two" => 6 } }]
+        }
+      end
+
+      example { expect(result).to eq(expected) }
+    end
+
+    context "key not found" do
+      let(:key_name) { "not_found" }
+      let(:env) do
+        {
+          "some_gem_settings_one" => "hello",
+          "some_gem_settings_two" => "world",
+          "some_gem_settings_three" => "yay",
+        }
+      end
+      let(:mapping) { :hash }
+
+      context "not specifying a default" do
+        let(:result) { ConfigVolumizer.fetch(env, key_name, mapping) }
+
+        example do
+          expect { result }.to raise_exception(KeyError)
+        end
+      end
+
+      context "specifying a default value" do
+        let(:result) { ConfigVolumizer.fetch(env, key_name, mapping, "default_value") }
+        let(:expected) { "default_value" }
+
+        example { expect(result).to eq(expected) }
+      end
+
+      context "specifying a default block" do
+        let(:result) { ConfigVolumizer.fetch(env, key_name, mapping) { |key| "default_#{key}" } }
+        let(:expected) { "default_not_found" }
+
+        example { expect(result).to eq(expected) }
+      end
+
+    end
+  end
+
 end

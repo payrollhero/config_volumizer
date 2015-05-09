@@ -13,7 +13,6 @@ module ConfigVolumizer
       # See Readme for an example
       #
       # @param [Hash] source
-      # @param [String] base_name
       # @param [Hash] mapping
       # @return [Hash]
       def parse(source, mapping)
