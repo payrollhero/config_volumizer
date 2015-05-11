@@ -42,14 +42,14 @@ some_with_another = setting
 
 ```ruby
 mapping = { "some" => { "setting" => :value, "with" => { "another" => :value } } }
-ConfigVolumizer.parse(ENV, 'some', mapping)
+ConfigVolumizer.parse(ENV, mapping)
 ```
 
 ## Features
 
 ### Parsing
 
-You can parse a flattened config via `ConfigVolumizer.parse(ENV, 'some', mapping)`
+You can parse a flattened config via `ConfigVolumizer.parse(ENV, mapping)`
 
 For example if your ENV was:
 
@@ -80,6 +80,51 @@ some:
     - three
   with:
     another: setting
+```
+
+### Fetching values (shorthand for parse)
+
+You can fetch a specific key from the given source
+
+For example:
+
+```ruby
+env = {
+  "some_setting" => "one,two,three",
+  "some_with_another" => "setting",
+}
+
+mapping = {
+  "setting" => [:value],
+  "with" => {
+    "another" => :value
+  }
+}
+
+ConfigVolumizer.fetch(env, "some", mapping)
+
+# returns:
+{
+ "setting" => [
+   "one","two","three"
+ ],
+ "with" => {
+   "another" => "setting",
+ }
+}
+```
+
+fetch works much like Hash#fetch, so you can pass an additional
+parameter for the default value, as well as use a block default value.
+
+eg:
+
+```ruby
+ConfigVolumizer.fetch(env, "another", mapping, "default_value")
+# => "default_value"
+
+ConfigVolumizer.fetch(env, "another", mapping) { |key| "default_#{key}" }
+# => "default_another"
 ```
 
 ### Generation
