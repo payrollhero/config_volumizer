@@ -1,4 +1,5 @@
 .ruby-version
+coverage/
 Gemfile.lock
 doc/
 pkg/
