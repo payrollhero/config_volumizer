@@ -68,9 +68,11 @@ module ConfigVolumizer
       end
 
       def handle_hash_item(mapping_info, mapping_key, name, result, value)
+        mapping_key = mapping_key.to_s if mapping_key.kind_of?(Symbol)
         result[mapping_key] ||= {}
         new_name = name.gsub(/^#{mapping_key}_/, '')
         mapping_info.each do |inner_mapping_key, inner_mapping_info|
+          inner_mapping_key = inner_mapping_key.to_s if inner_mapping_key.kind_of?(Symbol)
           if matches_name(inner_mapping_key, new_name)
             handle_item(result[mapping_key], new_name, value, inner_mapping_key, inner_mapping_info)
           end

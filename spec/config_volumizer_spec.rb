@@ -375,29 +375,44 @@ describe ConfigVolumizer do
     describe "array with varied values" do
       let(:mapping) do
         {
-          "ex" => [
-            :varied
-          ]
+          "ex" => {
+            foo1: :value,
+            bar1: [:varied],
+            foo2: :value,
+            bar2: [{x: :value}],
+          }
         }
       end
       let(:input) do
         {
-          'ex_0' => "1a",
-          'ex_1' => "2a",
-          'ex_2_one' => "3a",
-          'ex_2_two' => "3b",
+          'ex_foo1' => "0a",
+          'ex_bar1_0' => "1a",
+          'ex_bar1_1' => "2a",
+          'ex_bar1_2_one' => "3a",
+          'ex_bar1_2_two' => "3b",
+          'ex_foo2' => "4a",
+          'ex_bar2_0_x' => "5a",
+          'ex_bar2_1_x' => "5b",
         }
       end
       let(:expected_result) do
         {
-          'ex' => [
-            '1a',
-            '2a',
-            {
-              'one' => '3a',
-              'two' => '3b',
-            }
-          ]
+          'ex' => {
+            'foo1' => '0a',
+            'bar1' => [
+              '1a',
+              '2a',
+              {
+                'one' => '3a',
+                'two' => '3b',
+              }
+            ],
+            'foo2' => '4a',
+            'bar2' => [
+              {'x' => '5a'},
+              {'x' => '5b'},
+            ],
+          }
         }
       end
 
