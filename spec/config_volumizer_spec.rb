@@ -324,6 +324,88 @@ describe ConfigVolumizer do
       end
     end
 
+    describe "varied values at root" do
+      let(:mapping) do
+        {
+          "ex" => :varied
+        }
+      end
+
+      context "value mode" do
+        let(:input) do
+          {
+            'ex' => "1a",
+          }
+        end
+
+        let(:expected_result) do
+          {
+            'ex' => "1a"
+          }
+        end
+
+        example do
+          expect(result).to eq(expected_result)
+        end
+      end
+
+      context "hash mode" do
+        let(:input) do
+          {
+            'ex_one' => "1a",
+            'ex_two' => "1b",
+          }
+        end
+
+        let(:expected_result) do
+          {
+            'ex' => {
+              "one" => "1a",
+              "two" => "1b",
+            }
+          }
+        end
+
+        example do
+          expect(result).to eq(expected_result)
+        end
+      end
+    end
+
+    describe "array with varied values" do
+      let(:mapping) do
+        {
+          "ex" => [
+            :varied
+          ]
+        }
+      end
+      let(:input) do
+        {
+          'ex_0' => "1a",
+          'ex_1' => "2a",
+          'ex_2_one' => "3a",
+          'ex_2_two' => "3b",
+        }
+      end
+      let(:expected_result) do
+        {
+          'ex' => [
+            '1a',
+            '2a',
+            {
+              'one' => '3a',
+              'two' => '3b',
+            }
+          ]
+        }
+      end
+
+      example do
+        expect(result).to eq(expected_result)
+      end
+    end
+
   end
 
   describe "fetch" do

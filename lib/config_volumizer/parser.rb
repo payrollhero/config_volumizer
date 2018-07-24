@@ -53,6 +53,14 @@ module ConfigVolumizer
           new_name = name.gsub(/^#{mapping_key}_/, '')
           result[mapping_key] ||= {}
           result[mapping_key][new_name] = format_value(value)
+        when :varied
+          new_name = name.gsub(/^#{mapping_key}_/, '')
+          if new_name == "" || name == mapping_key
+            result[mapping_key] = format_value(value)
+          else
+            result[mapping_key] ||= {}
+            result[mapping_key][new_name] = format_value(value)
+            end
         else
           raise ArgumentError, "don't know how to deal with #{mapping_info.inspect}"
         end
@@ -77,6 +85,13 @@ module ConfigVolumizer
             result[mapping_key] += format_array_value(value)
           when :hash, Hash
             handle_array_hash_item(inner_mapping_info, mapping_key, name, result, value)
+          when :varied
+            new_name = name.gsub(/^#{mapping_key}_(\d+)(?:_)?/, '')
+            if new_name == ""
+              result[mapping_key] += format_array_value(value) # value mode
+            else
+              handle_array_hash_item(inner_mapping_info, mapping_key, name, result, value) # hash mode
+            end
           else
             raise "don't know how to handle: #{inner_mapping_info.inspect}"
           end

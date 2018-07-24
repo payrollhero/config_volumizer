@@ -41,7 +41,9 @@ module ConfigVolumizer
           value.each_with_index do |item, index|
             result[index] = process_mapping_item(item)
           end
-          result.uniq
+          result.uniq!
+          result = [:varied] if result.length > 1
+          result
         when Hash
           result = {}
           value.each do |key, item|
