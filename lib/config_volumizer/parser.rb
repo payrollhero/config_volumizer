@@ -18,7 +18,8 @@ module ConfigVolumizer
       def parse(source, mapping)
         result = {}
         mapping.each do |mapping_key, mapping_info|
-          source.each do |key, value|
+          source.keys.sort.each do |key|
+            value = source[key]
             if matches_name(mapping_key, key)
               handle_item(result, key, value, mapping_key, mapping_info)
             end

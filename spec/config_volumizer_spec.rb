@@ -18,21 +18,21 @@ describe ConfigVolumizer do
       let(:mapping) {
         {
           "ex1" => {
-            "bar" => :value,
+            "bar"  => :value,
             "bar2" => :value,
           }
         }
       }
       let(:input) do
         {
-          "ex1_bar" => "1a",
+          "ex1_bar"  => "1a",
           "ex1_bar2" => "2a",
         }
       end
       let(:expected_result) do
         {
           'ex1' => {
-            'bar' => '1a',
+            'bar'  => '1a',
             'bar2' => '2a',
           },
         }
@@ -48,7 +48,7 @@ describe ConfigVolumizer do
         {
           "ex3" => {
             "one" => {
-              "two" => :value,
+              "two"   => :value,
               "three" => :value,
             },
             "two" => {
@@ -59,7 +59,7 @@ describe ConfigVolumizer do
       end
       let(:input) do
         {
-          "ex3_one_two" => "1a",
+          "ex3_one_two"   => "1a",
           "ex3_one_three" => "2a",
           "ex3_two_three" => "3a",
         }
@@ -68,7 +68,7 @@ describe ConfigVolumizer do
         {
           'ex3' => {
             'one' => {
-              'two' => '1a',
+              'two'   => '1a',
               'three' => '2a',
             },
             'two' => {
@@ -237,16 +237,16 @@ describe ConfigVolumizer do
         end
         let(:input) do
           {
-            'ex_one' => "1a",
-            'ex_two' => "2a",
+            'ex_one'   => "1a",
+            'ex_two'   => "2a",
             'ex_three' => "3a",
           }
         end
         let(:expected_result) do
           {
             'ex' => {
-              "one" => "1a",
-              "two" => "2a",
+              "one"   => "1a",
+              "two"   => "2a",
               "three" => "3a",
             }
           }
@@ -267,8 +267,8 @@ describe ConfigVolumizer do
         end
         let(:input) do
           {
-            'ex_ex2_one' => "1a",
-            'ex_ex2_two' => "2a",
+            'ex_ex2_one'   => "1a",
+            'ex_ex2_two'   => "2a",
             'ex_ex2_three' => "3a",
           }
         end
@@ -276,8 +276,8 @@ describe ConfigVolumizer do
           {
             'ex' => {
               'ex2' => {
-                "one" => "1a",
-                "two" => "2a",
+                "one"   => "1a",
+                "two"   => "2a",
                 "three" => "3a",
               }
             }
@@ -297,18 +297,18 @@ describe ConfigVolumizer do
         end
         let(:input) do
           {
-            'ex_0_one' => "1a",
-            'ex_0_two' => "2a",
+            'ex_0_one'   => "1a",
+            'ex_0_two'   => "2a",
             'ex_0_three' => "3a",
-            'ex_1_two' => "4a",
+            'ex_1_two'   => "4a",
           }
         end
         let(:expected_result) do
           {
             'ex' => [
               {
-                "one" => "1a",
-                "two" => "2a",
+                "one"   => "1a",
+                "two"   => "2a",
                 "three" => "3a",
               },
               {
@@ -379,20 +379,20 @@ describe ConfigVolumizer do
             foo1: :value,
             bar1: [:varied],
             foo2: :value,
-            bar2: [{x: :value}],
+            bar2: [{ x: :value }],
           }
         }
       end
       let(:input) do
         {
-          'ex_foo1' => "0a",
-          'ex_bar1_0' => "1a",
-          'ex_bar1_1' => "2a",
+          'ex_foo1'       => "0a",
+          'ex_bar1_0'     => "1a",
+          'ex_bar1_1'     => "2a",
           'ex_bar1_2_one' => "3a",
           'ex_bar1_2_two' => "3b",
-          'ex_foo2' => "4a",
-          'ex_bar2_0_x' => "5a",
-          'ex_bar2_1_x' => "5b",
+          'ex_foo2'       => "4a",
+          'ex_bar2_0_x'   => "5a",
+          'ex_bar2_1_x'   => "5b",
         }
       end
       let(:expected_result) do
@@ -409,8 +409,8 @@ describe ConfigVolumizer do
             ],
             'foo2' => '4a',
             'bar2' => [
-              {'x' => '5a'},
-              {'x' => '5b'},
+              { 'x' => '5a' },
+              { 'x' => '5b' },
             ],
           }
         }
@@ -430,16 +430,16 @@ describe ConfigVolumizer do
     context "basic example" do
       let(:env) do
         {
-          "some_gem_settings_one" => "hello",
-          "some_gem_settings_two" => "world",
+          "some_gem_settings_one"   => "hello",
+          "some_gem_settings_two"   => "world",
           "some_gem_settings_three" => "yay",
         }
       end
       let(:mapping) { :hash }
       let(:expected) do
         {
-          "one" => "hello",
-          "two" => "world",
+          "one"   => "hello",
+          "two"   => "world",
           "three" => "yay",
         }
       end
@@ -450,9 +450,9 @@ describe ConfigVolumizer do
     context "complex example" do
       let(:env) do
         {
-          "some_gem_settings_key1_one" => "hello1",
-          "some_gem_settings_key1_two" => "hello2",
-          "some_gem_settings_key2" => "hello,world",
+          "some_gem_settings_key1_one"       => "hello1",
+          "some_gem_settings_key1_two"       => "hello2",
+          "some_gem_settings_key2"           => "hello,world",
           "some_gem_settings_key3_0_foo_one" => "1",
           "some_gem_settings_key3_0_foo_two" => "2",
           "some_gem_settings_key3_1_foo_one" => "3",
@@ -489,8 +489,8 @@ describe ConfigVolumizer do
       let(:key_name) { "not_found" }
       let(:env) do
         {
-          "some_gem_settings_one" => "hello",
-          "some_gem_settings_two" => "world",
+          "some_gem_settings_one"   => "hello",
+          "some_gem_settings_two"   => "world",
           "some_gem_settings_three" => "yay",
         }
       end
@@ -521,4 +521,37 @@ describe ConfigVolumizer do
     end
   end
 
+  context "edge cases" do
+    let(:env) do
+      {
+        "app_cache_store_2_namespace"       => "some",
+        "app_cache_store_1"                 => "some.server.net",
+        "app_cache_store_0"                 => "dalli_store",
+        "app_cache_store_2_expires_in"      => "86400",
+        "app_cache_store_2_value_max_bytes" => "2097152"
+      }
+    end
+
+    let(:mapping) do
+      [:varied]
+    end
+
+    let(:result) { ConfigVolumizer.fetch(env, 'app_cache_store', mapping) }
+
+    let(:expected) do
+      [
+        "dalli_store",
+        "some.server.net",
+        {
+          "namespace"       => "some",
+          "expires_in"      => 86400,
+          "value_max_bytes" => 2097152
+        }
+      ]
+    end
+
+    example do
+      expect(result).to eq(expected)
+    end
+  end
 end
