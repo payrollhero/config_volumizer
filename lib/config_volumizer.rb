@@ -29,7 +29,7 @@ module ConfigVolumizer
     # @return [Object]
     def fetch(source, mapping_key, mapping_info, default=nil, &block)
       value = Parser.parse(source, mapping_key => mapping_info)
-      value.fetch(mapping_key, *[default].compact, &block)
+      value.fetch(mapping_key.to_s, *[default].compact, &block)
     end
 
     # Generates a flattened config out of a data hash
